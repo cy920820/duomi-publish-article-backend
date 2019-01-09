@@ -1,0 +1,14 @@
+{
+  "name": "article",
+  "version": "1.0.0",
+  "description": "- 发布文章结果状态弹框 - 添加插入链接功能 - 优化UI - 加入再编辑功能 - 商品图片裁减(1:1)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "release": "node release.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.26.3"
+  }
+}

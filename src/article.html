@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>发布文章</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">-->
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <link rel="stylesheet" href="./css/bootstrap.min.css" />
+  <link rel="stylesheet" href="./css/article.css" />
+  <script>
+    (function (doc, win) {
+      let docEl = doc.documentElement
+      // viewport变化事件源
+      let resizeEvent = 'orientationchange' in window ? 'orientationchang' : 'resize'
+      let rescale = function () {
+        win.clientWidth = docEl.clientWidth
+        if (!win.clientWidth) return
+        // (屏幕宽度/设计图宽度) = 缩放或扩大的比例值
+        docEl.style.fontSize = 100 * (win.clientWidth / 750) + 'px'
+      }
+      if (!doc.addEventListener) return
+      win.addEventListener(resizeEvent, rescale, false)
+      doc.addEventListener('DOMContentLoaded', rescale, false)
+    })(document, window)
+  </script>
+</head>
+
+<body>
+
+  <div>
+    <div id="top">
+      <!--头部-->
+      <div class="header">
+        <button unselectable="on" onmousedown="return false;" data-toggle="modal" data-target="#myModal" id="commodity">插&nbsp;入&nbsp;商&nbsp;品</button>
+        <button id="release">发&nbsp;布&nbsp;文&nbsp;章</button>
+      </div>
+    </div>
+
+    <div id="subject">
+      <div id="content">
+        <!-- 主体部分 -->
+        <br />
+        <div id="addImage">
+          <!-- 添加头图 -->
+          <form id="form_add">
+            <input type="file" id="btn_file" style="display: none" name="file" />
+            <button type="button" class="btn btn-default btn-lg" onclick="F_Open_dialog()" id="add_img">
+              <span>+ 添加头图</span>
+            </button>
+          </form>
+        </div>
+
+        <br />
+        <div id="articleTitle">
+          <div><span>文章标题</span><input maxlength="30" id="articleTitleInput" type="text" placeholder="   请在此处填写标题（不超过30个字）" /></div>
+          <div style="position: relative;right: 10px;"><span>文章子标题</span><input maxlength="15" id="subtitle" type="text"
+              placeholder="   请在此处填写文章子标题（不超过15个字）" /></div>
+          <div><span>文章标签</span><input maxlength="6" id="articleTags" type="text" placeholder="   请在此处填写文章标签（不超过6个字）" /></div>
+          <div><span>爆料来源</span><input maxlength="50" id="knockOut" type="text" placeholder="   请在此处填写爆料来源" /></div>
+        </div>
+      </div>
+      <div id="editor"></div>
+    </div>
+
+    <div id="foot">
+      <p><b>本文相关商品</b></p>
+      <!--<div>商品名:<input class="commodityName"><span class="commodityID">商品ID:</span><button class="delCommodity">删除</button></div>-->
+    </div>
+
+  </div>
+
+
+
+  <!-- 查询框 -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <!--style="margin-top: 15%"-->
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+          </button>
+          <h4 class="modal-title" id="myModalLabel">
+            插入商品
+          </h4>
+        </div>
+
+        <div class="modal-body" style="z-index: 9">
+          <input type="text" id="addcommodityName" placeholder="请输入商品ID" />
+          <div id="commodityContent">
+            <div>
+              <div id="img_left"><img src=""></div>
+              <div id="title_price">
+                <div><input id="title_price_top" /></div>
+                <div><input id="title_price_bottom" /></div>
+              </div>
+            </div>
+            <div id="describe"><textarea maxlength="60" placeholder="  请输入商品描述"></textarea></div>
+
+            <div><input id="small_imgtitle" placeholder="  请输入精选词" /></textarea></div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <!--data-dismiss="modal"-->
+          <button type="button" class="btn btn-default" id="sure" unselectable="on" onmousedown="return false;">确定
+          </button>
+          <button id="close" type="button" class="btn btn-default" data-dismiss="modal">取消
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 查询框结束 -->
+
+  <!-- 隐藏域  控制插入商品时点击第一次确认和第二次确认-->
+  <input style="display: none" value="0" id="hide">
+
+  <script type="text/javascript" src="libs/jquery.min.js"></script>
+  <script type="text/javascript" src="libs/bootstrap.min.js"></script>
+  <script type="text/javascript" src="release/wangEditor.min.js"></script>
+  <script type="text/javascript">
+    //$.fn.modal.Constructor.prototype.enforceFocus = function () {};
+
+
+    var E = window.wangEditor;
+    //这里的id为<div id="editor"中的id.
+    var editor = new E('#editor');
+    editor.customConfig.zIndex = 1;
+    //controller会用到，可以随便设置，但是一定要与controller一致
+    editor.customConfig.uploadFileName = 'pic';
+    editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+    editor.customConfig.uploadImgShowBase64 = true;
+    editor.customConfig.uploadImgServer = 'https://shiziquan.com/shiziquan/learn?action=uploadformimg';
+    editor.customConfig.linkImgCallback = function (url) {
+      // alert(url);
+      console.log(url) // url 即插入图片的地址
+    }
+    var arrImg = [];
+    editor.customConfig.uploadImgHooks = {
+      customInsert: function (insertImg, result, editor) {
+        var url = result.data;
+        arrImg.push(url)
+        insertImg(url);
+      },
+      fail: function (xhr, editor, result) {
+        // 图片上传并返回结果，但图片插入错误时触发
+        alert(result.msg);
+      }
+    }
+    editor.create();
+
+    // editor.txt.html("<p style='color:red;'>asdasdasd</p>");
+
+
+
+    function F_Open_dialog() {
+      document.getElementById("btn_file").click();
+    }
+
+    $("#btn_file").change(function () {
+      //上传头图的图片  并在页面显示
+      var value = $("#btn_file").val();
+      if (value == "") {
+        alert("请选择文件");
+        return false;
+      };
+      var strRegex = "(.jpg|.png)$";
+      var re = new RegExp(strRegex);
+      if (!re.test(value)) {
+        alert("文件格式错误");
+        return false;
+      }
+
+      var a = $('#btn_file')[0].files[0];
+      var formData = new FormData();
+      formData.append("file", a);
+      $.ajax({
+        contentType: "multipart/form-data",
+        type: "post",
+        url: "https://shiziquan.com/shiziquan/learn?action=uploadformimg",
+        data: formData,
+        async: false,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          var job = JSON.parse(data);
+          var src = job.data[0];
+          //				alert(data);
+          //              alert(job.data[0]);
+          $("#form_add").css({
+            "display": "none"
+          });
+          $(".update_div").remove();
+          $("#addImage").append("<div class='update_div'><img src='" + src +
+            "' width='100%' height='260px' /><button id='update_img' onclick='F_Open_dialog()'>更换图片</button></div>"
+          );
+
+        },
+        error: function () {
+          alert("出错了");
+        }
+      });
+    });
+
+    $("#commodity").click(function () {
+      //每一次点击插入商品 初始化
+      $("#hide").val("0");
+      $("#sure").removeAttr('data-dismiss');
+      $("#commodityContent").hide();
+    });
+
+
+    $("#sure").click(function () {
+      //点击确定 插入商品
+      var hide = $("#hide").val();
+
+      if (hide == "0") {
+        var path = "";
+        var img = "";
+        var title = "";
+        var id = $("#addcommodityName").val();
+        if (id == "" || id == null) {
+          alert("请输入商品id");
+        } else {
+          path = "https://shiziquan.com/shiziquan/learn?action=getitemdetail&accountId=-1&num_iid=" + id;
+        }
+        //560253896325
+        $.ajax({
+          type: "post",
+          url: path,
+          async: false,
+          cache: false,
+          dataType: "json",
+          success: function (data) {
+            var code = data.code;
+            if (code == 0) {
+              alert("没有该商品");
+            } else {
+              var json = data.data.tbkItemInfo;
+              img = json.pict_url;
+              title = json.title;
+
+              $("#img_left img").attr('src', img);
+              $("#title_price_top").val("  " + title);
+              $("#title_price_bottom").val("  " + json.zk_final_price + "元");
+              $("#commodityContent").show();
+              $("#hide").val("1");
+
+            }
+          },
+          error: function () {
+            alert("出错了");
+          }
+        });
+      } else if (hide == "1") {
+        $("#sure").attr('data-dismiss', "modal");
+        var img = $('#img_left img')[0].src; //图片
+        var jingxuan = $("#small_imgtitle").val(); //精选词
+        var describe = $("#describe textarea").val(); //商品描述
+        var title_price_top = $("#title_price_top").val(); //标题
+        var title_price_bottom = $("#title_price_bottom").val(); //价格
+        var commodityID = $("#addcommodityName").val();
+
+        var html = 
+          `<div class='commodityCard'><div class='topCard'><div class='left'><span class='jingxuan'>${jingxuan}</span><img src='${img}'></div><div class='right'><p class='rightCard-describe'>${title_price_top}</p><div class='rightCard-purchase'><span>${title_price_bottom}</span><button class='purchase'>去购买</button></div></div></div><div class='bottomCard'><p class='commodityDescribe'>${describe}</p></div></div><p>&nbsp;<br></p>`
+
+        editor.txt.append(html);
+
+        var text = "<div style='border:1px solid #C8C8C8;'><div>商品名:<input class='commodityName' value=''" +
+          title_price_top + "'><br><span class='commodityID'>商品ID:<span class='commodityIDs'>" + commodityID +
+          "</span></span><button class='delCommodity' onclick='del(this)'>删除</button></div><br></div>";
+        $("#foot").append(text);
+      }
+
+    });
+
+    function del(obj) {
+      //点击下面的删除按钮
+      $(obj).parent().parent().remove();
+    }
+
+    $("#release").click(function () {
+      //点击发布文章
+      var file = $("#btn_file").val(); //如果为空 就是没有上传封面图
+      var pic = "";
+      if (file != "") {
+        pic = $(".update_div img")[0].src; //封面图
+      }
+
+      var title = $("#articleTitleInput").val(); //文章标题
+      var sub_title = $("#subtitle").val(); //文章子标题
+      var desc_title = $("#articleTags").val(); //文章标签
+      var artSource = $("#knockOut").val(); //爆料来源
+      var content = editor.txt.html(); //文章内容
+      if (title == "") {
+        alert("请填写文章标题");
+        return;
+      }
+      if (artSource == "") {
+        alert("请填写爆料来源");
+        return;
+      }
+
+
+      var num_iids = ""; //文章id
+      $(".commodityIDs").each(function () {
+        num_iids += $(this).text() + ";";
+      });
+
+      var data = {
+        title: title,
+        sub_title: sub_title,
+        desc_title: desc_title,
+        artSource: artSource,
+        pic: pic,
+        content: content.replace(/\"/g, "\'"),
+        num_iids: num_iids
+      };
+      console.log(data.content);
+      $.ajax({
+        contentType: "application/x-www-form-urlencoded",
+        type: "post",
+        url: "https://shiziquan.com/shiziquan/learn?action=createarticle",
+        data: data,
+        dataType: "json",
+        success: function (data) {
+          alert('发布成功!!');
+          window.location.reload()
+        },
+        error: function () {
+          alert("出错了");
+        }
+      });
+
+    });
+  </script>
+</body>
+
+</html>
