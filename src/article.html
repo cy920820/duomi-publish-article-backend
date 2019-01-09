@@ -267,7 +267,7 @@
         var commodityID = $("#addcommodityName").val();
 
         var html = 
-          `<div class='commodityCard'><div class='topCard'><div class='left'><span class='jingxuan'>${jingxuan}</span><img src='${img}'></div><div class='right'><p class='rightCard-describe'>${title_price_top}</p><div class='rightCard-purchase'><span>${title_price_bottom}</span><button class='purchase'>去购买</button></div></div></div><div class='bottomCard'><p class='commodityDescribe'>${describe}</p></div></div><p>&nbsp;<br></p>`
+          `<div class='commodityCard' data-commodityID='${commodityID}'><div class='topCard'><div class='left'><span class='jingxuan'>${jingxuan}</span><img src='${img}'></div><div class='right'><p class='rightCard-describe'>${title_price_top}</p><div class='rightCard-purchase'><span>${title_price_bottom}</span><button class='purchase'>去购买</button></div></div></div><div class='bottomCard'><p class='commodityDescribe'>${describe}</p></div></div><p>&nbsp;<br></p>`
 
         editor.txt.append(html);
 
